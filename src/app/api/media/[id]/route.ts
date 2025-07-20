@@ -5,9 +5,9 @@ import { db } from '../../../lib/firebase';
 // ✅ GET - get item by id
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any // استخدام any مؤقتًا
 ) {
-  const { id } = params; // استخراج الـ id من params
+  const id = context.params.id as string;
 
   if (!id) {
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
@@ -31,9 +31,9 @@ export async function GET(
 // 🗑️ DELETE - delete item by id
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any // استخدام any مؤقتًا
 ) {
-  const { id } = params; // استخراج الـ id من params
+  const id = context.params.id as string;
 
   if (!id) {
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
