@@ -74,10 +74,10 @@ export default function AdminPage() {
     setMessage('🗑️ Successfully deleted');
   };
 
-  // فلترة الـ media بناءً على الـ section المختار في الفورم
+
   const filteredMedia = form.section
     ? media.filter(item => item.section === form.section)
-    : media;
+    : [];
 
   return (
     <div className="p-6 text-white bg-black min-h-screen">
@@ -135,7 +135,7 @@ export default function AdminPage() {
           <p className="text-gray-400">
             {form.section
               ? `No media items found for ${form.section}.`
-              : 'No media items added yet.'}
+              : 'Not found'}
           </p>
         ) : (
           filteredMedia.map((item) => (
