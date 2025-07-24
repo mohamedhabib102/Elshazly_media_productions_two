@@ -11,16 +11,16 @@ const services = [
 
 export default function ServicesSection() {
   return (
-    <section className="py-16 bg-[#111] text-white text-center">
-      <h2 className="text-3xl font-bold mb-10">الخدمات</h2>
-      <div className="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 px-6 md:px-16">
+    <section className="py-24 bg-black text-white text-center">
+      <h2 className="text-4xl sm:text-5xl font-bold mb-12">الخدمات</h2>
+      <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 px-4 md:px-16 max-w-6xl mx-auto">
         {services.map((service) => (
           <div
             key={service.title}
-            className="bg-[#1a1a1a] p-6 rounded-lg shadow-md hover:shadow-lg transition"
+            className="bg-[#181818] py-10 px-4 rounded-xl shadow-sm flex flex-col items-center justify-center min-h-[180px] sm:min-h-[200px] md:min-h-[220px]"
           >
-            <div className="text-4xl mb-2">{service.emoji}</div>
-            <div className="font-semibold text-lg">{service.title}</div>
+            <div className="text-4xl sm:text-5xl md:text-6xl mb-4">{service.emoji}</div>
+            <div className="font-semibold text-lg sm:text-xl md:text-2xl">{service.title}</div>
           </div>
         ))}
       </div>
