@@ -40,7 +40,7 @@ export default function MediaSection() {
     <>
       <section className="px-6 sm:px-12 mb-20">
         <h2 className="text-3xl font-bold mb-6 text-center border-l-4 border-yellow-400 pl-4 flex items-center justify-center gap-2">
-          <FaPhotoVideo className="text-yellow-400" /> س: {section}
+          <FaPhotoVideo className="text-yellow-400" /> قسم: {section}
         </h2>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

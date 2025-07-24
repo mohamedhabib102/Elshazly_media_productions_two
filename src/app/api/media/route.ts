@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 
-// 📦 جلب كل العناصر حسب القسم
+
 export async function GET(request: NextRequest) {
   const section = request.nextUrl.searchParams.get('section');
 
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// ➕ إضافة عنصر جديد إلى القسم
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

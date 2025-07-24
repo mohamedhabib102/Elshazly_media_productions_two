@@ -11,6 +11,7 @@ type MediaItem = {
   url: string;
   section: string;
   type: 'image' | 'video';
+  imgUrl?: string;
 };
 
 export default function AdminPage() {
@@ -20,6 +21,7 @@ export default function AdminPage() {
     type: 'image',
     url: '',
     section: '',
+    imgUrl: '',
   });
   const [message, setMessage] = useState<string | null>(null);
 
@@ -28,7 +30,7 @@ export default function AdminPage() {
   useEffect(() => {
     const fetchData = async () => {
       const snapshot = await getDocs(collection(db, 'media'));
-      const items = snapshot.docs.map(doc => ({
+      const items = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as MediaItem[];
@@ -49,14 +51,20 @@ export default function AdminPage() {
   const addMedia = async () => {
     if (!form.section) return alert('Please select a section first.');
 
-    const docRef = await addDoc(collection(db, 'media'), {
+    const dataToSend: any = {
       title: form.title,
       url: form.url,
       type: form.type,
       section: form.section,
-    });
+    };
 
-    setMedia(prev => [
+    if (form.type === 'video' && form.imgUrl) {
+      dataToSend.imgUrl = form.imgUrl;
+    }
+
+    const docRef = await addDoc(collection(db, 'media'), dataToSend);
+
+    setMedia((prev) => [
       ...prev,
       {
         id: docRef.id,
@@ -65,18 +73,23 @@ export default function AdminPage() {
     ]);
 
     setMessage('✅ Successfully added');
-    setForm({ title: '', type: 'image', url: '', section: form.section });
+    setForm({
+      title: '',
+      type: 'image',
+      url: '',
+      section: form.section,
+      imgUrl: '',
+    });
   };
 
   const deleteMedia = async (id: string) => {
     await deleteDoc(doc(db, 'media', id));
-    setMedia(prev => prev.filter(m => m.id !== id));
+    setMedia((prev) => prev.filter((m) => m.id !== id));
     setMessage('🗑️ Successfully deleted');
   };
 
-
   const filteredMedia = form.section
-    ? media.filter(item => item.section === form.section)
+    ? media.filter((item) => item.section === form.section)
     : [];
 
   return (
@@ -95,32 +108,49 @@ export default function AdminPage() {
           placeholder="Title"
           className="p-2 bg-gray-800 rounded text-sm"
           value={form.title}
-          onChange={e => setForm({ ...form, title: e.target.value })}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
         />
         <input
           placeholder="Media URL"
           className="p-2 bg-gray-800 rounded text-sm"
           value={form.url}
-          onChange={e => setForm({ ...form, url: e.target.value })}
+          onChange={(e) => setForm({ ...form, url: e.target.value })}
         />
+
+        {/* 👇 يظهر فقط إذا كان النوع فيديو */}
+        {form.type === 'video' && (
+          <input
+            placeholder="Image URL"
+            className="p-2 bg-gray-800 rounded text-sm"
+            value={form.imgUrl}
+            onChange={(e) => setForm({ ...form, imgUrl: e.target.value })}
+          />
+        )}
+
         <select
           className="p-2 bg-gray-800 rounded text-sm"
           value={form.section}
-          onChange={e => setForm({ ...form, section: e.target.value })}
+          onChange={(e) => setForm({ ...form, section: e.target.value })}
         >
           <option value="">Select Section for Adding</option>
-          {sections.map(section => (
-            <option key={section} value={section}>{section}</option>
+          {sections.map((section) => (
+            <option key={section} value={section}>
+              {section}
+            </option>
           ))}
         </select>
+
         <select
           className="p-2 bg-gray-800 rounded text-sm"
           value={form.type}
-          onChange={e => setForm({ ...form, type: e.target.value as 'image' | 'video' })}
+          onChange={(e) =>
+            setForm({ ...form, type: e.target.value as 'image' | 'video' })
+          }
         >
           <option value="image">Image</option>
           <option value="video">Video</option>
         </select>
+
         <button
           onClick={addMedia}
           className="bg-green-600 px-4 py-2 rounded font-bold hover:bg-green-700 text-sm col-span-1 md:col-span-2 lg:col-span-1 flex items-center justify-center gap-2"
@@ -139,10 +169,15 @@ export default function AdminPage() {
           </p>
         ) : (
           filteredMedia.map((item) => (
-            <div key={item.id} className="bg-gray-900 p-3 rounded flex justify-between items-center shadow">
+            <div
+              key={item.id}
+              className="bg-gray-900 p-3 rounded flex justify-between items-center shadow"
+            >
               <div>
                 <div className="font-semibold text-sm">{item.title}</div>
-                <div className="text-xs text-gray-400">{item.section} • {item.type}</div>
+                <div className="text-xs text-gray-400">
+                  {item.section} • {item.type}
+                </div>
               </div>
               <button
                 onClick={() => deleteMedia(item.id)}

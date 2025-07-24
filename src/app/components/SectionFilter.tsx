@@ -39,7 +39,7 @@ export default function MediaGallery() {
 
   return (
     <>
-      {/* ✅ Section Filter Buttons */}
+      {/* ✅ Section Filter */}
       <div className="flex flex-wrap gap-3 justify-center my-8 py-4 rounded-lg shadow-lg">
         {sections.map((section) => (
           <button
@@ -56,7 +56,7 @@ export default function MediaGallery() {
         ))}
       </div>
 
-      {/* ✅ Media Section */}
+      {/* ✅ Media Grid */}
       <section className="px-6 sm:px-12 mb-20">
         <h2 className="text-3xl font-bold mb-6 text-center border-l-4 border-yellow-400 pl-4 flex items-center justify-center gap-2">
           <FaPhotoVideo className="text-yellow-400" /> قسم: {selectedSection}
@@ -86,16 +86,23 @@ export default function MediaGallery() {
                 ) : (
                   <div
                     onClick={() => setSelectedVideo(item)}
-                    className="w-full h-60 bg-black bg-opacity-30 hover:bg-opacity-50 cursor-pointer flex items-center justify-center rounded border border-gray-600 group"
+                    className="relative w-full h-60 cursor-pointer group overflow-hidden rounded border border-gray-600"
                   >
-                    <FaPlayCircle className="text-white text-5xl opacity-80 group-hover:scale-110 transition-transform" />
+                    <img
+                      src={item.imgUrl}
+                      alt={item.title}
+                      className="w-full h-full object-cover  relative z-30 group-hover:opacity-90 transition-opacity"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center group-hover:bg-opacity-50 transition">
+                      <FaPlayCircle className="text-white text-5xl opacity-90 group-hover:scale-110 transition-transform" />
+                    </div>
                   </div>
                 )}
               </div>
             ))
           ) : (
             <p className="text-center text-gray-500 col-span-full flex justify-center items-center gap-2">
-              <FaTimesCircle /> لا يوجد محتوى لهذا القسم.
+              <FaTimesCircle /> لا يوجد محتوى
             </p>
           )}
         </div>

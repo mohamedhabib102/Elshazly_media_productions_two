@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 
-// ✅ POST - create a new item
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
