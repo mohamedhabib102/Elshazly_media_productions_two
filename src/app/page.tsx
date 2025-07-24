@@ -33,10 +33,9 @@ export default function HomePage() {
   return (
     <main>
       <HeroSection />
-      <SectionFilter current={selectedSection} setSection={setSelectedSection} />
-      <MediaSection title={selectedSection} media={media} />
+      <SectionFilter />
+      {/* <MediaSection /> */}
     
-      
     
       <AboutSection />
       <ContactSection />

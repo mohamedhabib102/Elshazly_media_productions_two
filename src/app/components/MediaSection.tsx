@@ -1,13 +1,8 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MediaItem } from "../lib/media";
 import { FaPlayCircle, FaTimesCircle, FaPhotoVideo } from "react-icons/fa";
-
-interface MediaSectionProps {
-  title: string;
-  media: MediaItem[];
-}
 
 const getYouTubeEmbedUrl = (url: string): string => {
   const shortMatch = url.match(/youtu\.be\/([^\?&]+)/);
@@ -17,18 +12,41 @@ const getYouTubeEmbedUrl = (url: string): string => {
   return id ? `https://www.youtube.com/embed/${id}` : url;
 };
 
-export default function MediaSection({ title, media }: MediaSectionProps) {
+export default function MediaSection() {
+  const [media, setMedia] = useState<MediaItem[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<MediaItem | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const section = "Wedding"; 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`api/media?section=${section}`);
+        const data = await res.json();
+        setMedia(data);
+        console.log(data)
+      } catch (err) {
+        console.error("❌ Error fetching media:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>
       <section className="px-6 sm:px-12 mb-20">
         <h2 className="text-3xl font-bold mb-6 text-center border-l-4 border-yellow-400 pl-4 flex items-center justify-center gap-2">
-          <FaPhotoVideo className="text-yellow-400" /> {title}
+          <FaPhotoVideo className="text-yellow-400" /> س: {section}
         </h2>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {media.length > 0 ? (
+          {loading ? (
+            <p className="text-center text-gray-400 col-span-full">جاري تحميل المحتوى...</p>
+          ) : media.length > 0 ? (
             media.map((item) => (
               <div key={item.id} className="bg-gray-900 p-4 rounded-lg shadow-md">
                 <h3 className="text-lg font-semibold mb-2 text-white flex items-center gap-2">
@@ -64,7 +82,6 @@ export default function MediaSection({ title, media }: MediaSectionProps) {
         </div>
       </section>
 
-      {/* Popup Video Modal */}
       {selectedVideo && (
         <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center px-4">
           <div className="relative max-w-4xl w-full aspect-video">
@@ -77,7 +94,6 @@ export default function MediaSection({ title, media }: MediaSectionProps) {
               sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
             ></iframe>
 
-            {/* Close Button */}
             <button
               onClick={() => setSelectedVideo(null)}
               className="absolute -top-6 -right-6 bg-white text-black rounded-full p-2 shadow-lg hover:bg-gray-200 transition"
