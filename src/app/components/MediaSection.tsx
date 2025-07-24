@@ -1,15 +1,40 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { MediaItem } from "../lib/media";
-import { FaPlayCircle, FaTimesCircle, FaPhotoVideo } from "react-icons/fa";
+import { useEffect, useState } from 'react';
+import { MediaItem } from '../lib/media';
+import {
+  FaPlayCircle,
+  FaTimesCircle,
+  FaPhotoVideo,
+} from 'react-icons/fa';
 
 const getYouTubeEmbedUrl = (url: string): string => {
-  const shortMatch = url.match(/youtu\.be\/([^\?&]+)/);
-  const longMatch = url.match(/youtube\.com\/watch\?v=([^\?&]+)/);
-  const embedMatch = url.match(/youtube\.com\/embed\/([^\?&]+)/);
-  const id = shortMatch?.[1] || longMatch?.[1] || embedMatch?.[1];
-  return id ? `https://www.youtube.com/embed/${id}` : url;
+  const patterns = [
+    /youtu\.be\/([^\?&]+)/,
+    /youtube\.com\/watch\?v=([^\?&]+)/,
+    /youtube\.com\/embed\/([^\?&]+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match?.[1]) return `https://www.youtube.com/embed/${match[1]}`;
+  }
+
+  return url;
+};
+
+// دالة جديدة لاستخراج صورة مصغرة من رابط يوتيوب
+const getYouTubeThumbnail = (url: string): string => {
+  const patterns = [
+    /youtu\.be\/([^\?&]+)/,
+    /youtube\.com\/watch\?v=([^\?&]+)/,
+    /youtube\.com\/embed\/([^\?&]+)/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match?.[1]) return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+  }
+  return '/file.svg'; // صورة افتراضية إذا لم يكن الرابط يوتيوب
 };
 
 export default function MediaSection() {
@@ -17,7 +42,7 @@ export default function MediaSection() {
   const [selectedVideo, setSelectedVideo] = useState<MediaItem | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const section = "Wedding"; 
+  const section = 'Wedding';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,16 +50,17 @@ export default function MediaSection() {
         const res = await fetch(`api/media?section=${section}`);
         const data = await res.json();
         setMedia(data);
-        console.log(data)
       } catch (err) {
-        console.error("❌ Error fetching media:", err);
+        console.error('❌ Error fetching media:', err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [section]);
+
+  const handleCloseVideo = () => setSelectedVideo(null);
 
   return (
     <>
@@ -45,32 +71,35 @@ export default function MediaSection() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            <p className="text-center text-gray-400 col-span-full">جاري تحميل المحتوى...</p>
+            <p className="text-center text-gray-400 col-span-full">
+              جاري تحميل المحتوى...
+            </p>
           ) : media.length > 0 ? (
             media.map((item) => (
-              <div key={item.id} className="bg-gray-900 p-4 rounded-lg shadow-md">
-                <h3 className="text-lg font-semibold mb-2 text-white flex items-center gap-2">
-                  {item.type === 'image' ? (
-                    <FaPhotoVideo className="text-blue-400" />
-                  ) : (
-                    <FaPlayCircle className="text-red-500" />
-                  )}
-                  {item.title}
-                </h3>
-
+              <div
+                key={item.id}
+                className="aspect-square bg-gray-900 rounded-xl shadow-lg overflow-hidden group cursor-pointer flex items-center justify-center"
+                onClick={item.type === 'video' ? () => setSelectedVideo(item) : undefined}
+              >
                 {item.type === 'image' ? (
                   <img
                     src={item.url}
                     alt={item.title}
-                    className="w-full h-60 object-cover rounded"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div
-                    onClick={() => setSelectedVideo(item)}
-                    className="w-full h-60 bg-black bg-opacity-30 hover:bg-opacity-50 cursor-pointer flex items-center justify-center rounded border border-gray-600 group"
-                  >
-                    <FaPlayCircle className="text-white text-5xl opacity-80 group-hover:scale-110 transition-transform" />
-                  </div>
+                  <>
+                    <img
+                      src={getYouTubeThumbnail(item.url)}
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-opacity duration-200 group-hover:opacity-80"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="bg-black bg-opacity-40 rounded-full p-4 flex items-center justify-center transition-transform group-hover:scale-110">
+                        <FaPlayCircle className="text-white text-4xl opacity-90" />
+                      </span>
+                    </div>
+                  </>
                 )}
               </div>
             ))
@@ -82,9 +111,16 @@ export default function MediaSection() {
         </div>
       </section>
 
-      {selectedVideo && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center px-4">
-          <div className="relative max-w-4xl w-full aspect-video">
+      {/* ✅ Modal Video Player */}
+      {selectedVideo && selectedVideo.type === 'video' && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center px-4"
+          onClick={handleCloseVideo}
+        >
+          <div
+            className="relative max-w-4xl w-full aspect-video"
+            onClick={(e) => e.stopPropagation()} // منع الغلق عند الضغط داخل الفيديو
+          >
             <iframe
               src={getYouTubeEmbedUrl(selectedVideo.url)}
               title={selectedVideo.title}
@@ -95,7 +131,7 @@ export default function MediaSection() {
             ></iframe>
 
             <button
-              onClick={() => setSelectedVideo(null)}
+              onClick={handleCloseVideo}
               className="absolute -top-6 -right-6 bg-white text-black rounded-full p-2 shadow-lg hover:bg-gray-200 transition"
             >
               <FaTimesCircle className="text-2xl" />

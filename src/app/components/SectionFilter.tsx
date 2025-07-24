@@ -14,6 +14,15 @@ const getYouTubeEmbedUrl = (url: string): string => {
   return id ? `https://www.youtube.com/embed/${id}` : url;
 };
 
+// دالة لاستخراج صورة مصغرة من رابط يوتيوب
+const getYouTubeThumbnail = (url: string): string => {
+  const shortMatch = url.match(/youtu\.be\/([^\?&]+)/);
+  const longMatch = url.match(/youtube\.com\/watch\?v=([^\?&]+)/);
+  const embedMatch = url.match(/youtube\.com\/embed\/([^\?&]+)/);
+  const id = shortMatch?.[1] || longMatch?.[1] || embedMatch?.[1];
+  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : '/file.svg';
+};
+
 export default function MediaGallery() {
   const [selectedSection, setSelectedSection] = useState("Wedding");
   const [media, setMedia] = useState<MediaItem[]>([]);
@@ -89,7 +98,7 @@ export default function MediaGallery() {
                     className="relative w-full h-60 cursor-pointer group overflow-hidden rounded border border-gray-600"
                   >
                     <img
-                      src={item.imgUrl}
+                      src={getYouTubeThumbnail(item.url)}
                       alt={item.title}
                       className="w-full h-full object-cover  relative z-30 group-hover:opacity-90 transition-opacity"
                     />
